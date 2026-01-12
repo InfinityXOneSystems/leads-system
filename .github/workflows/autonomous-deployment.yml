@@ -1,0 +1,157 @@
+name: Lead Sniper Autonomous Deployment
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 5 * * *'  # Daily at 5 AM EST
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy-and-execute:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'write'  # Allow autonomous commits
+      id-token: 'write'  # Required for Workload Identity Federation
+      pull-requests: 'write'  # Allow PR creation
+
+    steps:
+    # 1. Checkout Repository
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # 2. Authenticate to Google Cloud (Workload Identity Federation)
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+    # 3. Setup Google Cloud SDK
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    # 4. Setup Python Environment
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # 5. Install Dependencies
+    - name: Install Python Dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install google-cloud-aiplatform google-generativeai
+
+    # 6. Deploy Backend to Cloud Run
+    - name: 'Deploy Lead Sniper Backend to Cloud Run'
+      uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        service: 'lead-sniper-backend'
+        region: 'us-central1'
+        source: './'
+        env_vars: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+          GEMINI_MODEL=gemini-2.0-flash-exp
+          BIGQUERY_DATASET=lead_sniper_data
+          FIRESTORE_COLLECTION=leads
+        flags: '--allow-unauthenticated --memory=2Gi --cpu=2 --timeout=3600'
+
+    # 7. Setup BigQuery Dataset
+    - name: 'Create BigQuery Dataset'
+      run: |
+        bq mk --dataset \
+          --location=us-central1 \
+          --description="Lead Sniper autonomous data warehouse" \
+          ${{ secrets.GCP_PROJECT_ID }}:lead_sniper_data || echo "Dataset already exists"
+
+    # 8. Setup Cloud Storage Buckets
+    - name: 'Create Storage Buckets'
+      run: |
+        gsutil mb -l us-central1 gs://${{ secrets.GCP_PROJECT_ID }}-lead-sniper-raw || echo "Bucket exists"
+        gsutil mb -l us-central1 gs://${{ secrets.GCP_PROJECT_ID }}-lead-sniper-processed || echo "Bucket exists"
+        gsutil mb -l us-central1 gs://${{ secrets.GCP_PROJECT_ID }}-lead-sniper-pipelines || echo "Bucket exists"
+
+    # 9. Deploy Vertex AI Pipeline
+    - name: 'Upload Vertex AI Pipeline'
+      run: |
+        gsutil cp infrastructure/vertex_ai/lead_scoring_pipeline.yaml \
+          gs://${{ secrets.GCP_PROJECT_ID }}-lead-sniper-pipelines/
+
+    # 10. Execute Lead Sniper Autonomous Pipeline
+    - name: 'Run Lead Sniper Pipeline'
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        python main.py --mode=autonomous --region=treasure-coast
+
+    # 11. Trigger Vertex AI Lead Scoring
+    - name: 'Trigger Vertex AI Lead Scoring Pipeline'
+      run: |
+        gcloud ai pipelines create \
+          --project=${{ secrets.GCP_PROJECT_ID }} \
+          --region=us-central1 \
+          --display-name="Lead-Scoring-$(date +%Y%m%d-%H%M%S)" \
+          --template-path="gs://${{ secrets.GCP_PROJECT_ID }}-lead-sniper-pipelines/lead_scoring_pipeline.yaml"
+
+    # 12. AI Code Review with Gemini CLI
+    - name: 'AI Code Review and Optimization'
+      uses: 'google-github-actions/run-gemini-cli@v1'
+      with:
+        prompt: |
+          Review the Lead Sniper codebase for:
+          1. Performance optimizations
+          2. Cost reduction opportunities
+          3. Code quality improvements
+          4. Security vulnerabilities
+          
+          Suggest specific changes and create a PR if improvements are found.
+        model: 'gemini-2.0-flash-exp'
+
+    # 13. Autonomous Commit Results
+    - name: 'Commit Pipeline Results'
+      run: |
+        git config user.name "Lead Sniper Bot"
+        git config user.email "lead-sniper@infinityxone.systems"
+        
+        # Add results to repo
+        git add results/
+        git add logs/
+        
+        # Commit if changes exist
+        git diff --staged --quiet || git commit -m "🎯 Autonomous pipeline run - $(date +%Y-%m-%d)"
+        
+        # Push changes
+        git push origin main || echo "No changes to push"
+
+    # 14. Deploy Frontend Dashboard
+    - name: 'Deploy Frontend to Cloud Run'
+      run: |
+        cd frontend
+        gcloud run deploy lead-sniper-dashboard \
+          --source=. \
+          --region=us-central1 \
+          --allow-unauthenticated \
+          --memory=512Mi
+
+    # 15. Setup Cloud Scheduler for Daily Runs
+    - name: 'Configure Cloud Scheduler'
+      run: |
+        gcloud scheduler jobs create http lead-sniper-daily \
+          --location=us-central1 \
+          --schedule="0 5 * * *" \
+          --uri="https://lead-sniper-backend-$(gcloud config get-value project).run.app/trigger-pipeline" \
+          --http-method=POST \
+          --oidc-service-account-email=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+          --time-zone="America/New_York" || echo "Scheduler job already exists"
+
+    # 16. Notification
+    - name: 'Send Completion Notification'
+      run: |
+        echo "✅ Lead Sniper autonomous deployment complete"
+        echo "Backend: https://lead-sniper-backend-$(gcloud config get-value project).run.app"
+        echo "Dashboard: https://lead-sniper-dashboard-$(gcloud config get-value project).run.app"

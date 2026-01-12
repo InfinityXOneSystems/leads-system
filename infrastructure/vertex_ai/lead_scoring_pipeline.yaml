@@ -1,0 +1,277 @@
+name: Lead Sniper Autonomous Scoring Pipeline
+description: Autonomous lead discovery, scoring, and enrichment using Vertex AI and Gemini 2.0
+
+components:
+  # Component 1: Data Ingestion from BigQuery
+  - name: ingest-leads
+    description: Pull raw leads from BigQuery
+    implementation:
+      container:
+        image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        command:
+          - bq
+          - query
+          - --use_legacy_sql=false
+          - --format=json
+          - >
+            SELECT * FROM `{{$.inputs.parameters['project_id']}}.lead_sniper_data.raw_leads`
+            WHERE processed = FALSE
+            ORDER BY created_at DESC
+            LIMIT 1000
+        args:
+          - --project_id={{$.inputs.parameters['project_id']}}
+    outputs:
+      artifacts:
+        - name: raw_leads
+          path: /tmp/raw_leads.json
+
+  # Component 2: Gemini-Powered Lead Analysis
+  - name: analyze-with-gemini
+    description: Use Gemini 2.0 Flash to analyze lead intent and distress signals
+    implementation:
+      container:
+        image: python:3.11-slim
+        command:
+          - python
+          - -c
+          - |
+            import json
+            import google.generativeai as genai
+            import os
+            
+            genai.configure(api_key=os.environ['GEMINI_API_KEY'])
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            
+            # Load leads
+            with open('/tmp/raw_leads.json') as f:
+                leads = json.load(f)
+            
+            analyzed_leads = []
+            for lead in leads:
+                prompt = f"""
+                Analyze this distressed property lead:
+                
+                Address: {lead.get('address')}
+                Property Type: {lead.get('property_type')}
+                Indicators: {lead.get('distress_indicators')}
+                Owner: {lead.get('owner_name')}
+                Tax Status: {lead.get('tax_status')}
+                
+                Provide:
+                1. Distress Score (0-100)
+                2. Deal Probability (0-100)
+                3. Urgency Level (low/medium/high/critical)
+                4. Key Risk Factors
+                5. Recommended Action
+                6. Estimated Discount Potential (%)
+                
+                Output as JSON.
+                """
+                
+                response = model.generate_content(prompt)
+                analysis = json.loads(response.text)
+                
+                lead['ai_analysis'] = analysis
+                analyzed_leads.append(lead)
+            
+            # Save analyzed leads
+            with open('/tmp/analyzed_leads.json', 'w') as f:
+                json.dump(analyzed_leads, f)
+        env:
+          - name: GEMINI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: gemini-api-key
+                key: api-key
+    inputs:
+      artifacts:
+        - name: raw_leads
+          path: /tmp/raw_leads.json
+    outputs:
+      artifacts:
+        - name: analyzed_leads
+          path: /tmp/analyzed_leads.json
+
+  # Component 3: Multi-Perspective Vision Cortex Scoring
+  - name: vision-cortex-scoring
+    description: Apply multi-perspective analysis using Vision Cortex methodology
+    implementation:
+      container:
+        image: python:3.11-slim
+        command:
+          - python
+          - /app/vision_cortex_scorer.py
+        args:
+          - --input=/tmp/analyzed_leads.json
+          - --output=/tmp/scored_leads.json
+    inputs:
+      artifacts:
+        - name: analyzed_leads
+          path: /tmp/analyzed_leads.json
+    outputs:
+      artifacts:
+        - name: scored_leads
+          path: /tmp/scored_leads.json
+
+  # Component 4: Enrichment with External Data
+  - name: enrich-leads
+    description: Enrich leads with property data, market comps, and owner info
+    implementation:
+      container:
+        image: python:3.11-slim
+        command:
+          - python
+          - /app/enrichment_engine.py
+        args:
+          - --input=/tmp/scored_leads.json
+          - --output=/tmp/enriched_leads.json
+    inputs:
+      artifacts:
+        - name: scored_leads
+          path: /tmp/scored_leads.json
+    outputs:
+      artifacts:
+        - name: enriched_leads
+          path: /tmp/enriched_leads.json
+
+  # Component 5: Deduplication and Validation
+  - name: deduplicate-validate
+    description: Remove duplicates and validate data quality
+    implementation:
+      container:
+        image: python:3.11-slim
+        command:
+          - python
+          - /app/deduplication_validator.py
+        args:
+          - --input=/tmp/enriched_leads.json
+          - --output=/tmp/final_leads.json
+    inputs:
+      artifacts:
+        - name: enriched_leads
+          path: /tmp/enriched_leads.json
+    outputs:
+      artifacts:
+        - name: final_leads
+          path: /tmp/final_leads.json
+
+  # Component 6: Store Results in BigQuery
+  - name: store-results
+    description: Write final leads to BigQuery
+    implementation:
+      container:
+        image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        command:
+          - bq
+          - load
+          - --source_format=NEWLINE_DELIMITED_JSON
+          - --replace
+          - "{{$.inputs.parameters['project_id']}}.lead_sniper_data.processed_leads"
+          - /tmp/final_leads.json
+        args:
+          - --project_id={{$.inputs.parameters['project_id']}}
+    inputs:
+      artifacts:
+        - name: final_leads
+          path: /tmp/final_leads.json
+
+  # Component 7: Trigger Notifications
+  - name: notify-delivery
+    description: Send notifications for high-priority leads
+    implementation:
+      container:
+        image: python:3.11-slim
+        command:
+          - python
+          - /app/notification_agent.py
+        args:
+          - --input=/tmp/final_leads.json
+          - --threshold=80
+    inputs:
+      artifacts:
+        - name: final_leads
+          path: /tmp/final_leads.json
+
+# Pipeline Definition
+pipeline:
+  name: lead-sniper-autonomous-pipeline
+  parameters:
+    - name: project_id
+      type: String
+      description: GCP Project ID
+    - name: region
+      type: String
+      default: us-central1
+      description: GCP Region
+
+  tasks:
+    - name: ingest
+      componentRef:
+        name: ingest-leads
+      arguments:
+        parameters:
+          - name: project_id
+            value: "{{$.inputs.parameters['project_id']}}"
+
+    - name: analyze
+      componentRef:
+        name: analyze-with-gemini
+      dependencies:
+        - ingest
+      arguments:
+        artifacts:
+          - name: raw_leads
+            from: "{{tasks.ingest.outputs.artifacts['raw_leads']}}"
+
+    - name: score
+      componentRef:
+        name: vision-cortex-scoring
+      dependencies:
+        - analyze
+      arguments:
+        artifacts:
+          - name: analyzed_leads
+            from: "{{tasks.analyze.outputs.artifacts['analyzed_leads']}}"
+
+    - name: enrich
+      componentRef:
+        name: enrich-leads
+      dependencies:
+        - score
+      arguments:
+        artifacts:
+          - name: scored_leads
+            from: "{{tasks.score.outputs.artifacts['scored_leads']}}"
+
+    - name: validate
+      componentRef:
+        name: deduplicate-validate
+      dependencies:
+        - enrich
+      arguments:
+        artifacts:
+          - name: enriched_leads
+            from: "{{tasks.enrich.outputs.artifacts['enriched_leads']}}"
+
+    - name: store
+      componentRef:
+        name: store-results
+      dependencies:
+        - validate
+      arguments:
+        parameters:
+          - name: project_id
+            value: "{{$.inputs.parameters['project_id']}}"
+        artifacts:
+          - name: final_leads
+            from: "{{tasks.validate.outputs.artifacts['final_leads']}}"
+
+    - name: notify
+      componentRef:
+        name: notify-delivery
+      dependencies:
+        - store
+      arguments:
+        artifacts:
+          - name: final_leads
+            from: "{{tasks.validate.outputs.artifacts['final_leads']}}"
