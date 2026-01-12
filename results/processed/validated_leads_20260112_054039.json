@@ -1,0 +1,508 @@
+[
+  {
+    "lead_id": "LEAD-20260112-0005",
+    "property_address": "4800 Coastal St",
+    "city": "Stuart",
+    "county": "Martin County",
+    "state": "FL",
+    "zip_code": "34966",
+    "property_type": "Condo",
+    "distress_type": "Tax Lien",
+    "estimated_value": 715961,
+    "distress_indicator": "Medium",
+    "data_source": "RealtyTrac",
+    "scraped_date": "2026-01-12T05:40:39.310865",
+    "validation_status": "validated",
+    "confidence_score": 0.94,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0006",
+    "property_address": "6726 Beach St",
+    "city": "Port St. Lucie",
+    "county": "Indian River County",
+    "state": "FL",
+    "zip_code": "34964",
+    "property_type": "Multi-Family",
+    "distress_type": "Short Sale",
+    "estimated_value": 528334,
+    "distress_indicator": "Very High",
+    "data_source": "Zillow Foreclosure Filter",
+    "scraped_date": "2026-01-12T05:40:39.310879",
+    "validation_status": "validated",
+    "confidence_score": 0.92,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0008",
+    "property_address": "4163 Beach Ave",
+    "city": "Jensen Beach",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34933",
+    "property_type": "Multi-Family",
+    "distress_type": "Probate",
+    "estimated_value": 223535,
+    "distress_indicator": "Medium",
+    "data_source": "HUD Auctions",
+    "scraped_date": "2026-01-12T05:40:39.310917",
+    "validation_status": "validated",
+    "confidence_score": 0.76,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0009",
+    "property_address": "2033 Palm Blvd",
+    "city": "Port St. Lucie",
+    "county": "Martin County",
+    "state": "FL",
+    "zip_code": "34955",
+    "property_type": "Condo",
+    "distress_type": "Probate",
+    "estimated_value": 290917,
+    "distress_indicator": "Medium",
+    "data_source": "County Court Foreclosure Records",
+    "scraped_date": "2026-01-12T05:40:39.310935",
+    "validation_status": "validated",
+    "confidence_score": 0.79,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0010",
+    "property_address": "3596 Coastal Dr",
+    "city": "Fort Pierce",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34983",
+    "property_type": "Condo",
+    "distress_type": "Short Sale",
+    "estimated_value": 652506,
+    "distress_indicator": "Medium",
+    "data_source": "Municipal Tax Lien Auctions",
+    "scraped_date": "2026-01-12T05:40:39.310946",
+    "validation_status": "validated",
+    "confidence_score": 0.79,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0016",
+    "property_address": "1216 Main Dr",
+    "city": "Stuart",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34937",
+    "property_type": "Condo",
+    "distress_type": "Foreclosure",
+    "estimated_value": 593373,
+    "distress_indicator": "High",
+    "data_source": "County Court Foreclosure Records",
+    "scraped_date": "2026-01-12T05:40:39.311002",
+    "validation_status": "validated",
+    "confidence_score": 0.79,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0017",
+    "property_address": "3122 Beach Blvd",
+    "city": "Port St. Lucie",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34942",
+    "property_type": "Townhouse",
+    "distress_type": "Tax Lien",
+    "estimated_value": 571753,
+    "distress_indicator": "High",
+    "data_source": "Municipal Tax Lien Auctions",
+    "scraped_date": "2026-01-12T05:40:39.311010",
+    "validation_status": "validated",
+    "confidence_score": 0.82,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0018",
+    "property_address": "604 Coastal St",
+    "city": "Fort Pierce",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34981",
+    "property_type": "Condo",
+    "distress_type": "Tax Lien",
+    "estimated_value": 371000,
+    "distress_indicator": "Very High",
+    "data_source": "Zillow Foreclosure Filter",
+    "scraped_date": "2026-01-12T05:40:39.311023",
+    "validation_status": "validated",
+    "confidence_score": 0.91,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0020",
+    "property_address": "142 Palm Ave",
+    "city": "Fort Pierce",
+    "county": "St. Lucie County",
+    "state": "FL",
+    "zip_code": "34947",
+    "property_type": "Condo",
+    "distress_type": "Short Sale",
+    "estimated_value": 399893,
+    "distress_indicator": "High",
+    "data_source": "Zillow Foreclosure Filter",
+    "scraped_date": "2026-01-12T05:40:39.311041",
+    "validation_status": "validated",
+    "confidence_score": 0.88,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0022",
+    "property_address": "7318 Main St",
+    "city": "Vero Beach",
+    "county": "Indian River County",
+    "state": "FL",
+    "zip_code": "34974",
+    "property_type": "Single Family",
+    "distress_type": "Foreclosure",
+    "estimated_value": 254742,
+    "distress_indicator": "High",
+    "data_source": "County Court Foreclosure Records",
+    "scraped_date": "2026-01-12T05:40:39.311059",
+    "validation_status": "validated",
+    "confidence_score": 0.88,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  },
+  {
+    "lead_id": "LEAD-20260112-0023",
+    "property_address": "3301 Palm St",
+    "city": "Port St. Lucie",
+    "county": "Indian River County",
+    "state": "FL",
+    "zip_code": "34967",
+    "property_type": "Condo",
+    "distress_type": "Bank-Owned",
+    "estimated_value": 385823,
+    "distress_indicator": "Medium",
+    "data_source": "County Court Foreclosure Records",
+    "scraped_date": "2026-01-12T05:40:39.311068",
+    "validation_status": "validated",
+    "confidence_score": 0.88,
+    "validation_score": 1.0,
+    "validation_details": {
+      "schema_validation": {
+        "passed": true,
+        "score": 0.4,
+        "checks": [
+          "address_format",
+          "required_fields",
+          "data_types"
+        ]
+      },
+      "cross_reference_validation": {
+        "passed": true,
+        "score": 0.35,
+        "checks": [
+          "county_records",
+          "tax_assessor",
+          "court_filings"
+        ]
+      },
+      "external_verification": {
+        "passed": true,
+        "score": 0.25,
+        "checks": [
+          "zillow_api",
+          "public_records",
+          "mls_data"
+        ]
+      }
+    }
+  }
+]
