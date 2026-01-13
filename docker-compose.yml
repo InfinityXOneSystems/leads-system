@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Development Environment - Privileged Container
+  dev-environment:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    container_name: infinity-dev-container
+    hostname: infinity-dev
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - EXECUTION_MODE=container
+      - AUTONOMOUS_MODE=true
+      - SILENT_EXECUTION=true
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      # Mount entire workspace
+      - ../:/workspace:cached
+      # Docker socket for docker-in-docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent Python cache
+      - python-cache:/root/.cache/pip
+      # Persistent Playwright cache
+      - playwright-cache:/root/.cache/ms-playwright
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    command: tail -f /dev/null
+
+  # Ollama Service (if not running on host)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: infinity-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  python-cache:
+    driver: local
+  playwright-cache:
+    driver: local
+  ollama-data:
+    driver: local

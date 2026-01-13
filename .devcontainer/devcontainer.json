@@ -1,0 +1,63 @@
+{
+  "name": "Infinity Master System - Lead Sniper",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev-environment",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "none",
+  "remoteUser": "root",
+  
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "files.watcherExclude": {
+          "**/results/**": true,
+          "**/logs/**": true,
+          "**/.git/**": true
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "GitHub.copilot",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ]
+    }
+  },
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt && playwright install chromium && chmod +x /workspace/scripts/*.py",
+  
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  
+  "runArgs": [
+    "--privileged",
+    "--network=host",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+  
+  "forwardPorts": [8080, 11434],
+  
+  "portsAttributes": {
+    "8080": {
+      "label": "Lead Sniper API",
+      "onAutoForward": "silent"
+    },
+    "11434": {
+      "label": "Ollama API",
+      "onAutoForward": "silent"
+    }
+  }
+}

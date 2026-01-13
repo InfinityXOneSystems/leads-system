@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Lead Sniper - Local Autonomous Execution Node
+  lead-sniper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lead-sniper-local
+    restart: always
+    environment:
+      - EXECUTION_MODE=local
+      - AUTONOMOUS_MODE=true
+      - OLLAMA_HOST=http://ollama:11434
+    env_file:
+      - .env.local
+    volumes:
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./data:/app/data
+    ports:
+      - "8080:8080"
+    networks:
+      - lead-sniper-network
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: python main.py --daemon
+
+  # Ollama - Local AI Model (First-Pass Filtering)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-local
+    restart: always
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - lead-sniper-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  lead-sniper-network:
+    driver: bridge
+
+volumes:
+  ollama-data:
+    driver: local
